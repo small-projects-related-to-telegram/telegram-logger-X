@@ -51,6 +51,7 @@ DB_PATH = 'data.sqlite3' '''
     print(f'Saved default config file to {path!r}')
 
 
+
 CONFIG_FILENAME = 'config.toml'
 
 if os.path.isfile(CONFIG_FILENAME):

@@ -1,3 +1,4 @@
+
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -5,8 +6,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name = 'telegram-logger-x',         # How you named your package folder (MyLib)
-  scripts = ['telegram-logger.py'],   # Chose the same as "name"
-  version = '0.6a',      # Start with a small number and increase it with every change you make
+  packages = ['telegram_logger'],
+  entry_points = {
+        'console_scripts': ['telegram-logger = telegram_logger:main'],
+    },
+  version = '0.12a',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'Logs Telegram events to your console, file(s) or both simultanously.',   # Give a short description about your library
   long_description = long_description,
@@ -25,5 +29,6 @@ setuptools.setup(
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
   ],
 )
