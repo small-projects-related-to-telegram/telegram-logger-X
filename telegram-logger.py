@@ -3,6 +3,9 @@
 import re
 import sys
 import sqlite3
+import os
+import platform
+from copy import copy
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
@@ -12,10 +15,62 @@ from telethon import TelegramClient, events
 from telethon.tl.types import Channel, Chat, DocumentAttributeFilename, MessageMediaWebPage, User
 
 
-DB_PATH = 'data.sqlite3'
+def config_default_save(path):
+    config_file_content = '''# API ID and hash to authenticate the application (not the user).
+api_id =
+api_hash = ""
+
+# Only enable in chats with the given IDs.
+#
+# If this is empty, it will be enabled in all chats except `disabled_chats`,
+# because it makes no sense to run the logger with zero chats.
+enabled_chats = []
+
+# Disable in chats with the given IDs.
+disabled_chats = []
+
+# Whether to save received media.
+save_media = true
+
+# Whether to log to files
+log_to_file = false
+
+# Seperate logs for seperate chat_ids
+log_seperate_files = true
+
+# Whether to log to stdout
+log_stdout = true
+
+# Whether to use ANSI color codes for logs.
+# If not specified, the default is to use colors only when logging to stdout and it is a tty.
+#log_colors = true
+
+DB_PATH = 'data.sqlite3' '''
+    with open(path, 'w') as file:
+        file.write(config_file_content)
+    print(f'Saved default config file to {path!r}')
 
 
-config = toml.load('config.toml')
+CONFIG_FILENAME = 'config.toml'
+
+if os.path.isfile(CONFIG_FILENAME):
+    config_path = copy(CONFIG_FILENAME)
+else:
+    CONFIG_FILENAME = 'telegram-logger.toml'
+    system = platform.system()
+    if system == 'Windows':
+        userprofile_dir = os.environ['USERPROFILE']
+        config_path = os.path.join(userprofile_dir, CONFIG_FILENAME)
+    else:
+        home_dir = os.environ['HOME']
+        config_path = os.path.join(home_dir, CONFIG_FILENAME)
+    if not os.path.isfile(config_path):
+        config_default_save(config_path)
+try:
+    config = toml.load(config_path)
+except toml.decoder.TomlDecodeError as e:
+    print(f'ERROR: Your configuration file is either not yet configured or somehow got messed up.\nThe problem is this: {e.msg!r} (On line {e.lineno})\nYour config path is: \'{config_path}\'')
+    sys.exit(1)
 
 api_id = config.get('api_id')
 api_hash = config.get('api_hash')
